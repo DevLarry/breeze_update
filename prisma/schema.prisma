@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,12 +10,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model account {
-  id        Int      @id @default(autoincrement())
-  firstname String
-  lastname  String
-  email     String
-  username  String
-  password  String
-  dob       DateTime
+model Account {
+  id           Int         @id @default(autoincrement())
+  email        String      @unique
+  password     String
+  name         String
+  role         Role        @default(STUDENT)
+  bio          String?
+  avatar       String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  posts        Post[]
+  comments     Comment[]
+  department   Department? @relation(fields: [departmentId], references: [id])
+  departmentId Int?
+  tags         Tag[]
+}
+
+model Faculty {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  departments Department[]
+  tags        Tag[]
+}
+
+model Department {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  faculty     Faculty   @relation(fields: [facultyId], references: [id])
+  facultyId   Int
+  accounts    Account[]
+  tags        Tag[]
+
+  @@unique([name, facultyId])
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  posts       Post[]
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String
+  description String?
+  published   Boolean   @default(false)
+  author      Account   @relation(fields: [authorId], references: [id])
+  authorId    Int
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  comments    Comment[]
+  tags        Tag[]
+  topics      Topic[]
+}
+
+model Comment {
+  id            Int       @id @default(autoincrement())
+  content       String
+  author        Account   @relation(fields: [authorId], references: [id])
+  authorId      Int
+  post          Post      @relation(fields: [postId], references: [id])
+  postId        Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  parentComment Comment?  @relation("CommentToComment", fields: [parentId], references: [id])
+  parentId      Int?
+  childComments Comment[] @relation("CommentToComment")
+}
+
+model Tag {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  description String?
+  posts       Post[]
+  accounts    Account[]
+  departments Department[]
+  faculties   Faculty[]
+}
+
+model Topic {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  posts       Post[]
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
 }
