@@ -1,0 +1,60 @@
+// src/mailer/mailer.service.ts
+import { Injectable } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
+
+@Injectable()
+export class MailerService {
+  private transporter: nodemailer.Transporter;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+    });
+  }
+
+  async sendEmail(to: string, subject: string, html: string) {
+    const mailOptions = {
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions, (err: any, info: any) => {
+        if (err) throw err;
+      });
+      return 'Mail Sent';
+    } catch (e) {
+      return e;
+    }
+  }
+
+  async sendConfirmationEmail(email: string, code: string) {
+    const link = `${process.env.CONFIRM_EMAIL_PATH}?code=${code}&email=${email}&type=1`;
+    const template = `<body>
+    <h2>Your Email confirmation code is:</h2>
+      <h3>${code}</h3>
+      you can also  click <a href="${link}">this link</a> to confirm your Email
+    </body>`;
+    const res = await this.sendEmail(email, 'Confirm your Email!', template);
+    return res;
+  }
+
+  async sendForgotPasswordEmail(email: string, code: string) {
+    const link = `${process.env.CONFIRM_EMAIL_PATH}?code=${code}&email=${email}&type=2`;
+    const template = `<body>
+    <h2>Your Email confirmation code is:</h2>
+      <h3>${code}</h3>
+      you can also  click <a href="${link}">this link</a> to confirm your Email
+    </body>`;
+    const res = await this.sendEmail(email, 'Confirm your Email!', template);
+    return res;
+  }
+}
