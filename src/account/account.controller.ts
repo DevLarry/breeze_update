@@ -1,20 +1,49 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Res,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { Response } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { Account } from './entities/account.entity';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { query, Request } from 'express';
 
-@Controller('account')
+@Controller('api/account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Post()
-  create(@Body() createAccountDto: CreateAccountDto) {
-    return this.accountService.create(createAccountDto);
+  async create(@Body() createAccountDto: CreateAccountDto, @Response() res) {
+    this.accountService.create(createAccountDto, res);
   }
 
   @Get()
-  findAll() {
-    return this.accountService.findAll();
+  findAll(@Query() query) {
+    console.log(query);
+
+    const page = +query.page || 1;
+    const count = +query.count || 10;
+    const search = query.search || '';
+    return this.accountService.findAll(page, count, search);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('me')
+  findMe(@Req() req) {
+    this.accountService.findOne(req.user.id);
   }
 
   @Get(':id')
@@ -22,11 +51,13 @@ export class AccountController {
     return this.accountService.findOne(+id);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
     return this.accountService.update(+id, updateAccountDto);
   }
 
+  @UseGuards(AdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.accountService.remove(+id);

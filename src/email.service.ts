@@ -1,5 +1,5 @@
 // src/mailer/mailer.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
@@ -30,10 +30,17 @@ export class MailerService {
       await this.transporter.sendMail(mailOptions, (err: any, info: any) => {
         if (err) throw err;
       });
-      return 'Mail Sent';
+      return this.createResponse(true);
     } catch (e) {
-      return e;
+      throw new InternalServerErrorException('Failed to send Email!');
     }
+  }
+
+  createResponse(success: boolean) {
+    return {
+      success,
+      message: success ? 'Mail Sent!' : 'An error ocuured while sending mail',
+    };
   }
 
   async sendConfirmationEmail(email: string, code: string) {
@@ -55,6 +62,7 @@ export class MailerService {
       you can also  click <a href="${link}">this link</a> to confirm your Email
     </body>`;
     const res = await this.sendEmail(email, 'Confirm your Email!', template);
+
     return res;
   }
 }

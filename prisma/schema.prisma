@@ -11,20 +11,22 @@ datasource db {
 }
 
 model Account {
-  id           Int         @id @default(autoincrement())
-  email        String      @unique
-  password     String
-  name         String
-  role         Role        @default(STUDENT)
-  bio          String?
-  avatar       String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  posts        Post[]
-  comments     Comment[]
-  department   Department? @relation(fields: [departmentId], references: [id])
-  departmentId Int?
-  tags         Tag[]
+  id                Int         @id @default(autoincrement())
+  email             String      @unique
+  password          String
+  name              String
+  role              Role        @default(STUDENT)
+  bio               String?
+  avatar            String?
+  verification_code String?
+  is_verified       Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  posts             Post[]
+  comments          Comment[]
+  department        Department? @relation(fields: [departmentId], references: [id])
+  departmentId      Int?
+  tags              Tag[]
 }
 
 model Faculty {
