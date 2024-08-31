@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { $Enums, Account } from '@prisma/client'
 export class CreateAccountDto {
