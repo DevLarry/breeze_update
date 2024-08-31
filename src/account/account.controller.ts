@@ -43,7 +43,7 @@ export class AccountController {
   @UseGuards(AuthGuard)
   @Get('me')
   findMe(@Req() req) {
-    this.accountService.findOne(req.user.id);
+    return this.accountService.findOne(req.user.id);
   }
 
   @Get(':id')
