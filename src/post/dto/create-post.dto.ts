@@ -20,12 +20,12 @@ export class CreatePostDto {
     published?: boolean;
 
     @IsInt()
-    @IsNotEmpty()
-    authorId: number;
+    @IsOptional()
+    authorId?: number;
 
     @IsInt()
     @IsNotEmpty()
-    categoryId: number;
+    categoryId?: number;
 
     @IsOptional()
     file?: Express.Multer.File;

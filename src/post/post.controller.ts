@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Delete, Body, UploadedFiles, UseInterceptors, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, UploadedFiles, UseInterceptors, UseGuards, Param, ParseIntPipe, Req } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -7,7 +7,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Express } from 'express'; 
+import { Express, Request } from 'express'; 
 import { ApiConsumes, ApiParam } from '@nestjs/swagger';
 
 // @ApiTags('posts')
@@ -35,10 +35,11 @@ export class PostController {
     }),
   )
   async createPost(
-    @Param('id', ParseIntPipe) id: number,
     @Body() createPostDto: CreatePostDto,
     @UploadedFiles() files: Express.Multer.File[],
+    @Req() req: any
   ) {
+    createPostDto.authorId = req.user.id;
     return this.postService.createPost(createPostDto, files);
   }
 
@@ -46,6 +47,7 @@ export class PostController {
   async getPost(@Param('id', ParseIntPipe) id: number) {
     return this.postService.getPost(id);
   }
+
   @Put(':id')
   async updatePost(@Param('id', ParseIntPipe) id: number, @Body() updatePostDto: UpdatePostDto) {
     return this.postService.updatePost(id, updatePostDto);

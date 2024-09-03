@@ -33,7 +33,6 @@ export class AccountController {
 
   @Get()
   findAll(@Query() query) {
-    console.log(query);
 
     const page = +query.page || 1;
     const count = +query.count || 10;
