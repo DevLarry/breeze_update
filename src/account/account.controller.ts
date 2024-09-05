@@ -13,7 +13,13 @@ import {
   Req,
 } from '@nestjs/common';
 import { Response } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
@@ -36,10 +42,27 @@ export class AccountController {
 
   @Get()
   @ApiOperation({ summary: 'Retrieve a list of accounts' })
-  @ApiQuery({ name: 'page', required: false, description: 'Page number for pagination', type: Number })
-  @ApiQuery({ name: 'count', required: false, description: 'Number of items per page', type: Number })
-  @ApiQuery({ name: 'search', required: false, description: 'Search term for filtering accounts' })
-  @ApiResponse({ status: 200, description: 'List of accounts retrieved successfully.' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'count',
+    required: false,
+    description: 'Number of items per page',
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Search term for filtering accounts',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of accounts retrieved successfully.',
+  })
   @ApiResponse({ status: 400, description: 'Bad request.' })
   findAll(@Query() query) {
     const page = +query.page || 1;
@@ -51,8 +74,13 @@ export class AccountController {
   @UseGuards(AuthGuard)
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Retrieve the current authenticated user\'s account' })
-  @ApiResponse({ status: 200, description: 'Account details retrieved successfully.' })
+  @ApiOperation({
+    summary: "Retrieve the current authenticated user's account",
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Account details retrieved successfully.',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   findMe(@Req() req) {
     return this.accountService.findOne(req.user.id);
@@ -60,7 +88,10 @@ export class AccountController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Retrieve an account by its ID' })
-  @ApiResponse({ status: 200, description: 'Account details retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Account details retrieved successfully.',
+  })
   @ApiResponse({ status: 404, description: 'Account not found.' })
   findOne(@Param('id') id: string) {
     return this.accountService.findOne(+id);

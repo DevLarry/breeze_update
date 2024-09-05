@@ -7,7 +7,8 @@ export class MailerService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
+    try {
+      this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: false, // true for 465, false for other ports
@@ -16,6 +17,10 @@ export class MailerService {
         pass: process.env.SMTP_PASSWORD,
       },
     });
+    }
+    catch(e) {
+      throw new InternalServerErrorException();
+    }
   }
 
   async sendEmail(to: string, subject: string, html: string) {

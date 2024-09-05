@@ -14,9 +14,12 @@ import { Express } from 'express';
 export class PostService {
   constructor(private readonly prisma: PrismaService) {}
 
- 
-  async createPost(createPostDto: CreatePostDto, files: Express.Multer.File[]): Promise<PostResponseDto> {
-    const { title, content, description, published, authorId, categoryId } = createPostDto;
+  async createPost(
+    createPostDto: CreatePostDto,
+    files: Express.Multer.File[],
+  ): Promise<PostResponseDto> {
+    const { title, content, description, published, authorId, categoryId } =
+      createPostDto;
 
     try {
       const post = await this.prisma.post.create({
@@ -37,11 +40,11 @@ export class PostService {
             },
           },
         },
-        include: {
-          uploads: true,
-          author: true,
-          category: true,
-        },
+        // include: {
+        //   uploads: true,
+        //   author: true,
+        //   category: true,
+        // },
       });
 
       return this.mapPostToDto(post);
@@ -60,18 +63,24 @@ export class PostService {
             createdAt: 'desc',
           },
           include: {
-            author: true,
+            author: true
           },
         },
-        uploads: true,
+        uploads: {
+          select: {
+            fileName: true,
+          },
+        },
       },
     });
     if (!post) throw new NotFoundException(`Post with ID ${id} not found.`);
     return this.mapPostToDto(post);
   }
 
-
-  async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<PostResponseDto> {
+  async updatePost(
+    id: number,
+    updatePostDto: UpdatePostDto,
+  ): Promise<PostResponseDto> {
     const updatedPost = await this.prisma.post.update({
       where: { id },
       data: updatePostDto,
@@ -84,7 +93,6 @@ export class PostService {
     return this.mapPostToDto(updatedPost);
   }
 
-  
   async deletePost(id: number): Promise<PostResponseDto> {
     const deletedPost = await this.prisma.post.delete({
       where: { id },
@@ -96,8 +104,16 @@ export class PostService {
     return this.mapPostToDto(deletedPost);
   }
 
-
-  async findAll(page: number, count: number, search: string): Promise<{ posts: PostResponseDto[]; total: number; currentPage: number; pageSize: number }> {
+  async findAll(
+    page: number,
+    count: number,
+    search: string,
+  ): Promise<{
+    posts: PostResponseDto[];
+    total: number;
+    currentPage: number;
+    pageSize: number;
+  }> {
     const skip = (page - 1) * count;
     const whereCondition = search
       ? {
@@ -123,29 +139,22 @@ export class PostService {
     const total = await this.prisma.post.count({ where: whereCondition });
 
     return {
-      posts: posts.map(post => this.mapPostToDto(post)),
+      posts: posts.map((post) => this.mapPostToDto(post)),
       total,
       currentPage: page,
       pageSize: count,
     };
   }
 
-
   private mapPostToDto(post: any): PostResponseDto {
     return {
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      description: post.description,
-      published: post.published,
-      authorId: post.authorId,
-      categoryId: post.categoryId,
+      ...post,
       uploads: post.uploads.map((upload) => upload.fileName),
-      comments: post.comments.map((comment) => ({
-        id: comment.id,
-        content: comment.content,
-        authorId: comment.authorId,
-        createdAt: comment.createdAt,
+      comments: post.comments.map(({ id, content, authorId, createdAt }) => ({
+        id,
+        content,
+        authorId,
+        createdAt,
       })),
     };
   }

@@ -7,15 +7,11 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 @Injectable()
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
- 
 
   async create(createCommentDto: CreateCommentDto) {
     return this.prisma.comment.create({
       data: {
-        content: createCommentDto.content,
-        authorId: createCommentDto.authorId,
-        postId: createCommentDto.postId,
-        parentId: createCommentDto.parentId,
+        ...createCommentDto,
       },
     });
   }
@@ -23,7 +19,8 @@ export class CommentService {
   // Find a comment by ID
   async findOne(id: number) {
     const comment = await this.prisma.comment.findUnique({ where: { id } });
-    if (!comment) throw new NotFoundException(`Comment with ID ${id} not found.`);
+    if (!comment)
+      throw new NotFoundException(`Comment with ID ${id} not found.`);
     return comment;
   }
 
@@ -31,13 +28,15 @@ export class CommentService {
   async update(id: number, updateCommentDto: UpdateCommentDto) {
     return this.prisma.comment.update({
       where: { id },
-      data: updateCommentDto,
+      data: { ...updateCommentDto },
     });
   }
 
   // Delete a comment
   async remove(id: number) {
-    return this.prisma.comment.delete({ where: { id } });
+    return this.prisma.comment.delete({ where: { id }, include: {
+      childComments: true
+    } });
   }
 
   // Get all comments with pagination

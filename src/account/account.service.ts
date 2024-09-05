@@ -45,7 +45,7 @@ export class AccountService {
           message = 'Account Already Exists! Enter a valid Email/Username.';
           res.status(400).json({ message: message, error: err });
         } else {
-          message = 'Internal server Error!';
+          message = err.message;
           res.status(500).json({ message: message, error: err });
         }
       });
@@ -94,6 +94,7 @@ export class AccountService {
     const count = await this.prismaService.account.count({ where });
     accounts = accounts.map((e) => {
       delete e.password;
+      
       return e;
     });
     return { accounts, count };
