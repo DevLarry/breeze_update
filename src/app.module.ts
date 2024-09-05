@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { PostModule } from './post/post.module';
 import { PrismaService } from './prisma.service';
+import { CommentModule } from './comments/comment.module';
+
 
 @Module({
   imports: [
@@ -15,7 +17,8 @@ import { PrismaService } from './prisma.service';
       }),
     AccountModule,
     AuthModule,
-    PostModule
+    PostModule,
+    CommentModule
     
     ],
   controllers: [AppController],

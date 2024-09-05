@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { $Enums, Account as account } from '@prisma/client'
 export type Role = $Enums.Role
 export class Account implements account {

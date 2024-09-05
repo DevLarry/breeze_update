@@ -1,9 +1,10 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { PrismaClient } from '@prisma/client';
 import { Account } from './entities/account.entity';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'src/prisma.service';
 import { MailerService } from 'src/email.service';
 import { generateOtp } from './otp.utils';

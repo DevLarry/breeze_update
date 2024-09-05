@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { AccountService } from '../account/account.service';
-import { compareSync } from 'bcrypt';
+import { compareSync } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import e from 'express';
 import { MailerService } from 'src/email.service';

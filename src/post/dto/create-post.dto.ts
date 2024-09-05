@@ -1,33 +1,40 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsInt } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+// import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsInt } from 'class-validator';
 import { Express } from 'express';
 
 export class CreatePostDto {
-    @IsString()
-    @IsNotEmpty()
+    // @IsString()
+    // @IsNotEmpty()
+    @ApiProperty()
     title: string;
 
-    @IsString()
-    @IsNotEmpty()
+    // @IsString()
+    // @IsNotEmpty()
+    @ApiProperty()
     content: string;
 
-    @IsOptional()
-    @IsString()
+    // @IsOptional()
+    // @IsString()
+    @ApiProperty()
     description?: string;
 
-    @IsOptional()
-    @IsBoolean()
+    // @IsOptional()
+    // @IsBoolean()
+    @ApiProperty()
     published?: boolean;
 
-    @IsInt()
-    @IsOptional()
+    // @IsOptional()
+    // @IsInt()
+    @ApiProperty()
     authorId?: number;
 
-    @IsInt()
-    @IsNotEmpty()
+    // @IsInt()
+    // @IsNotEmpty()
+    @ApiProperty()
     categoryId?: number;
 
-    @IsOptional()
-    file?: Express.Multer.File;
+    @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
+    files: Express.Multer.File[];
+    
 }
-  

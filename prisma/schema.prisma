@@ -73,6 +73,7 @@ model Post {
   tags        Tag[]
   topics      Topic[]
   uploads     Upload[]
+  images      Image[]   // Relation to Image model
 }
 
 model Comment {
@@ -105,6 +106,14 @@ model Upload {
   postId    Int
   createdAt DateTime @default(now())
   post      Post     @relation(fields: [postId], onDelete: Cascade, references: [id])
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  url       String   // URL of the image
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  createdAt DateTime @default(now())
 }
 
 model Topic {
