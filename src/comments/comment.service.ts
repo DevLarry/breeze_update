@@ -7,6 +7,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 @Injectable()
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
+ 
 
   async create(createCommentDto: CreateCommentDto) {
     return this.prisma.comment.create({
