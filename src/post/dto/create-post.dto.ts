@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-// import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsInt } from 'class-validator';
+// import { IsInt ,IsArray} from 'class-validator';
 import { Express } from 'express';
 
 export class CreatePostDto {
@@ -33,6 +33,12 @@ export class CreatePostDto {
     // @IsNotEmpty()
     @ApiProperty()
     categoryId?: number;
+
+    @ApiProperty()
+    tags: string;
+    
+    @ApiProperty()
+    topics: number[]
 
     @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
     files: Express.Multer.File[];

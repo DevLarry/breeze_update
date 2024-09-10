@@ -8,6 +8,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { PostModule } from './post/post.module';
 import { PrismaService } from './prisma.service';
 import { CommentModule } from './comments/comment.module';
+import { TopicModule } from './topics/topic.module';
+import { TagModule } from './tags/tag.module';
 
 
 @Module({
@@ -18,7 +20,9 @@ import { CommentModule } from './comments/comment.module';
     AccountModule,
     AuthModule,
     PostModule,
-    CommentModule
+    CommentModule,
+    TopicModule,
+    TagModule
     
     ],
   controllers: [AppController],
