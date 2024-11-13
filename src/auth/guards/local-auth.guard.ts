@@ -6,7 +6,7 @@ export class LocalAuthGuard implements CanActivate {
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         // let result = super.canActivate(context);
         const request = context.switchToHttp().getRequest();
-        request.session 
+        // request.session
         return request.user as boolean;
     }
 }

@@ -10,6 +10,8 @@ import { PrismaService } from './prisma.service';
 import { CommentModule } from './comments/comment.module';
 import { TopicModule } from './topics/topic.module';
 import { TagModule } from './tags/tag.module';
+import { NotificationModule } from './notification/notification.module';
+import { SocietyModule } from './society/society.module';
 
 
 @Module({
@@ -21,8 +23,8 @@ import { TagModule } from './tags/tag.module';
     AuthModule,
     PostModule,
     CommentModule,
-    TopicModule,
-    TagModule
+    NotificationModule,
+    SocietyModule
     
     ],
   controllers: [AppController],

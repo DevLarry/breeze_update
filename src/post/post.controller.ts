@@ -32,9 +32,14 @@ import {
   ApiOperation,
   ApiQuery,
   ApiBody,
+  ApiResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 
 @ApiTags('posts')
+@ApiBearerAuth()
+@UseGuards(AuthGuard)
+@ApiResponse({ status: 401, description: 'Unauthorized.' })
 @Controller('api/posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}

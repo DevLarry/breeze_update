@@ -21,6 +21,7 @@ import { AccountService, saltOrRounds } from 'src/account/account.service';
 import { generateOtp } from 'src/account/otp.utils';
 import * as bcrypt from 'bcryptjs';
 import { ApiQuery, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { Account } from 'src/account/entities/account.entity';
 
 @ApiTags('auth') // Tag for grouping the endpoints
 @Controller('api/auth')
@@ -99,7 +100,7 @@ export class AuthController {
   @Get('profile')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get profile information of the authenticated user' })
-  @ApiResponse({ status: 200, description: 'User profile retrieved successfully.' })
+  @ApiResponse({ status: 200, description: 'User profile retrieved successfully.', type: Account })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   getProfile(@Request() req) {
     return req.user;
@@ -111,5 +112,8 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Bad request.' })
   logout(@Session() session) {
     session.destroy();
+    return {
+      success: true
+    }
   }
 }
