@@ -6,28 +6,29 @@ import { AccountModule } from './account/account.module';
 import { AuthModule } from './auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { PostModule } from './post/post.module';
-import { PrismaService } from './prisma.service';
 import { CommentModule } from './comments/comment.module';
 import { TopicModule } from './topics/topic.module';
 import { TagModule } from './tags/tag.module';
-import { NotificationModule } from './notification/notification.module';
 import { SocietyModule } from './society/society.module';
-
+import { PublicityModule } from './publicity/publicity.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
-      MulterModule.register({
-        dest: './uploads',
-      }),
+    MulterModule.register({
+      dest: './uploads',
+    }),
     AccountModule,
     AuthModule,
     PostModule,
     CommentModule,
     NotificationModule,
-    SocietyModule
-    
-    ],
+    SocietyModule,
+    PublicityModule,
+    TagModule,
+    TopicModule,
+  ],
   controllers: [AppController],
-  providers: [AppService,PrismaService],
+  providers: [AppService],
 })
 export class AppModule {}

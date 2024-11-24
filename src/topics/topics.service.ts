@@ -1,40 +1,45 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { CreateTopicDto } from './dto/create-topic.dto';
+import { CreateTopicDto, UpdateTopicDto } from './dto/create-topic.dto';
 
 @Injectable()
 export class TopicService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTopicDto: CreateTopicDto) {
-    const { name } = createTopicDto;
-    try {
-      return await this.prisma.topic.create({ data: { name } });
-    } catch (error) {
-      throw new BadRequestException('Could not create topic');
-    }
+    return this.prisma.topic.create({
+      data: createTopicDto,
+    });
   }
 
   async findAll() {
-    return await this.prisma.topic.findMany();
+    return this.prisma.topic.findMany({
+      include: {
+        posts: true,
+      },
+    });
   }
 
   async findOne(id: number) {
-    const topic = await this.prisma.topic.findUnique({ where: { id } });
-    if (!topic) throw new NotFoundException('Topic not found');
-    return topic;
+    return this.prisma.topic.findUnique({
+      where: { id },
+      include: {
+        posts: true,
+      },
+    });
   }
 
-  async updateTopicsForPost(postId: number, topicIds: number[]) {
-    try {
-      return await this.prisma.post.update({
-        where: { id: postId },
-        data: { topics: { set: topicIds.map((id) => ({ id })) } },
-        include: { topics: true },
-      });
-    } catch (error) {
-      throw new BadRequestException('Error associating topics to the post');
-    }
+  async update(id: number, updateTopicDto: UpdateTopicDto) {
+    return this.prisma.topic.update({
+      where: { id },
+      data: updateTopicDto,
+    });
+  }
+
+  async remove(id: number) {
+    return this.prisma.topic.delete({
+      where: { id },
+    });
   }
 }

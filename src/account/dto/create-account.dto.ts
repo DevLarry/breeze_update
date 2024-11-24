@@ -16,4 +16,13 @@ export class CreateAccountDto {
   avatar: string;
   @ApiProperty({ required: false })
   departmentId?: number;
+
+  @ApiProperty({ required: false })
+  gender?: string;
+
+  @ApiProperty({ required: false })
+  ethnicity?: string;
+
+  @ApiProperty({ required: false })
+  religiousBelief?: string;
 }

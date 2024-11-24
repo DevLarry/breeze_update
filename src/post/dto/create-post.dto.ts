@@ -1,46 +1,70 @@
 /* eslint-disable prettier/prettier */
-import { ApiProperty } from '@nestjs/swagger';
-// import { IsInt ,IsArray} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Express } from 'express';
+import { Role } from '@prisma/client';
 
 export class CreatePostDto {
-    // @IsString()
-    // @IsNotEmpty()
-    @ApiProperty()
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  title: string;
 
-    // @IsString()
-    // @IsNotEmpty()
-    @ApiProperty()
-    content: string;
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  content: string;
 
-    // @IsOptional()
-    // @IsString()
-    @ApiProperty()
-    description?: string;
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  description?: string;
 
-    // @IsOptional()
-    // @IsBoolean()
-    @ApiProperty()
-    published?: boolean;
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ required: false })
+  published?: boolean;
 
-    // @IsOptional()
-    // @IsInt()
-    @ApiProperty()
-    authorId?: number;
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ required: false })
+  authorId?: number;
 
-    // @IsInt()
-    // @IsNotEmpty()
-    @ApiProperty()
-    categoryId?: number;
+  @IsNumber()
+  @ApiProperty()
+  categoryId: number;
 
-    @ApiProperty()
-    tags: string;
-    
-    @ApiProperty()
-    topics: number[]
+  @IsString()
+  @ApiProperty()
+  tags: string;
 
-    @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
-    files: Express.Multer.File[];
-    
+
+  @IsString()
+  @ApiProperty()
+  topics: string;
+
+
+
+  // @ApiPropertyOptional()
+  // @IsOptional()
+  // @IsNumber()
+  // departmentId?: number;
+
+  // @ApiPropertyOptional()
+  // @IsOptional()
+  // @IsNumber()
+  // facultyId?: number;
+
+
+
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary'
+    }
+  })
+  files?: Express.Multer.File[];
+
+  uploads?: any;
 }

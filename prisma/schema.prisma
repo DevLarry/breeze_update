@@ -28,6 +28,11 @@ model Account {
   department        Department? @relation(fields: [departmentId], references: [id])
   departmentId      Int?
   tags              Tag[]
+  gender            String?
+  ethnicity         String?
+  religiousBelief   String?
+  notifications Notification[]
+  tagSubscriptions TagSubscription[]
 }
 
 model Faculty {
@@ -76,7 +81,8 @@ model Post {
   topics      Topic[]     @relation("PostTopics")
   uploads     Upload[]
   images      Image[] // Relation to Image model
-  Publicity   Publicity[]
+  publicity   Publicity[]
+  notifications Notification[]
 }
 
 model Comment {
@@ -101,6 +107,7 @@ model Tag {
   accounts    Account[]
   departments Department[]
   faculties   Faculty[]
+  tagSubscriptions TagSubscription[]
   // PostToTag   PostToTag[]
 }
 
@@ -153,11 +160,39 @@ model Image {
 }
 
 model Publicity {
-  id        Int      @id @default(autoincrement())
-  postId    Int      @unique
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  postId        Int      
+  post          Post     @relation(fields: [postId], references: [id])
+  amount        Decimal  @db.Decimal(10, 2)
+  status        PublicityStatus @default(PENDING)
+  targetFilters Json     // Stores targeting criteria
+  startDate     DateTime @default(now())
+  endDate       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([postId])
+}
+
+
+model Notification {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        Account   @relation(fields: [userId], references: [id])
+  postId      Int
+  post        Post      @relation(fields: [postId], references: [id])
+  type        NotificationType
+  message    String?  
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+model TagSubscription {
+  id     Int @id @default(autoincrement())
+  userId Int
+  tagId  Int
+  user   Account @relation(fields: [userId], references: [id])
+  tag    Tag     @relation(fields: [tagId], references: [id])
 }
 
 model Topic {
@@ -166,6 +201,29 @@ model Topic {
   description String?
   posts       Post[]  @relation("PostTopics")
 }
+
+enum NotificationType {
+  PUBLIC_POST
+  TARGETED_POST
+  DEPARTMENT_POST
+  FACULTY_POST
+  POST_CREATED 
+  POST_UPDATED
+  COMMENT
+  REACTION
+  CUSTOM
+  USER_MENTION  
+  TAG_POST
+  
+}
+enum PublicityStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  COMPLETED
+  CANCELLED
+}
+
 
 enum Role {
   STUDENT

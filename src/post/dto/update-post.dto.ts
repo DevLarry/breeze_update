@@ -20,6 +20,10 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   @IsString()
   description?: string;
 
+  @IsOptional()
+  @IsString()
+  publicity?: string; 
+
   @ApiPropertyOptional({ description: 'Whether the post is published' })
   @IsOptional()
   @IsBoolean()
@@ -45,6 +49,6 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   @IsOptional()
   @IsArray()
   @IsInt({ each: true })
-  topics?: number[];
+  topics?: string;
 
 }

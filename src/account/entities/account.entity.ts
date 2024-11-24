@@ -27,4 +27,10 @@ export class Account implements account {
   updatedAt: Date;
   @ApiProperty()
   departmentId: number;
+  @ApiProperty()
+  gender: string; // Ensure it's optional if your type allows it
+  @ApiProperty()
+  ethnicity: string;
+  @ApiProperty()
+  religiousBelief: string;
 }

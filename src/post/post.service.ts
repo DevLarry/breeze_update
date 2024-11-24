@@ -10,22 +10,27 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { ReactionDto } from './dto/reaction.dto';
 import { Express } from 'express';
 import { TagService } from '../tags/tag.service';
+import { NotificationService } from 'src/notification/notification.service';
+import { Role, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly prisma: PrismaService,private readonly tagService: TagService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tagService: TagService,
+    private readonly notificationService: NotificationService
+  ) {}
 
   async createPost(
     createPostDto: CreatePostDto,
     files: Express.Multer.File[],
   ): Promise<any> {
     const { title, content, description, published, authorId, categoryId, tags } = createPostDto;
-    console.log('Received CreatePostDto:', createPostDto);
-
+    
     const tagNames = tags.split(',').map(tag => tag.trim());
   
     try {
-    
+      // Create or retrieve tags
       const createdTags = await Promise.all(
         tagNames.map(async (name) => {
           return await this.prisma.tag.upsert({
@@ -36,6 +41,7 @@ export class PostService {
         })
       );
   
+      // Create post
       const post = await this.prisma.post.create({
         data: {
           title,
@@ -60,6 +66,19 @@ export class PostService {
           uploads: true,
         },
       });
+
+      // notification for post creation
+      await this.notificationService.createNotification(
+        post.id,
+        NotificationType.POST_CREATED,
+        post.authorId
+      );
+
+      // Notify users wiyh same tags
+      await this.notifyTagSubscribers(post, createdTags);
+
+      // Notify mentioned users
+      await this.notifyMentionedUsers(post, content);
   
       return post;
     } catch (error) {
@@ -67,6 +86,68 @@ export class PostService {
       throw new InternalServerErrorException('An error occurred while creating the post.');
     }
   }
+
+  private async notifyTagSubscribers(post: any, tags: any[]): Promise<void> {
+    try {
+      const subscribedUsers = await this.prisma.account.findMany({
+        where: {
+          tagSubscriptions: {
+            some: {
+              tagId: { in: tags.map(tag => tag.id) }
+            }
+          },
+          id: { not: post.authorId }
+        }
+      });
+  
+      // Create notifications for subscribed users
+      await Promise.all(
+        subscribedUsers.map(async (user) => {
+          await this.notificationService.createNotification(
+            post.id,
+            NotificationType.TAG_POST,
+            user.id, // Add the user's ID
+            `New post in subscribed tag: ${post.title}`
+          );
+        })
+      );
+    } catch (error) {
+      console.error('Error notifying tag subscribers:', error);
+    }
+  }
+  
+  private async notifyMentionedUsers(post: any, content: string): Promise<void> {
+    try {
+      const mentionedUsernames = [...new Set(
+        content.match(/@(\w+)/g)?.map(mention => mention.slice(1)) || []
+      )];
+  
+      if (mentionedUsernames.length > 0) {
+        const mentionedUsers = await this.prisma.account.findMany({
+          where: { 
+            name: { in: mentionedUsernames },
+            id: { not: post.authorId }
+          }
+        });
+  
+        await Promise.all(
+          mentionedUsers.map(async (user) => {
+            await this.notificationService.createNotification(
+              post.id,
+              NotificationType.USER_MENTION,
+              user.id,
+              `You were mentioned in a post: ${post.title}`
+            );
+          })
+        );
+      }
+    } catch (error) {
+      console.error('Error notifying mentioned users:', error);
+    }
+  }
+
+ 
+ 
   
   async updatePost(id: number, updatePostDto: UpdatePostDto): Promise<any> {
     const { tags = [], authorId, categoryId, title, content, description, published } = updatePostDto;
@@ -75,7 +156,6 @@ export class PostService {
     const createdTags = tagArray.length ? await this.tagService.createTags(tagArray) : [];
 
     try {
-      // Update the post and handle the tags
       const updatedPost = await this.prisma.post.update({
         where: { id },
         data: {

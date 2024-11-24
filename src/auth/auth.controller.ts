@@ -20,7 +20,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AccountService, saltOrRounds } from 'src/account/account.service';
 import { generateOtp } from 'src/account/otp.utils';
 import * as bcrypt from 'bcryptjs';
-import { ApiQuery, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiQuery, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth,ApiBody } from '@nestjs/swagger';
 import { Account } from 'src/account/entities/account.entity';
 
 @ApiTags('auth') // Tag for grouping the endpoints
@@ -77,6 +77,18 @@ export class AuthController {
   @ApiOperation({ summary: 'Reset user password using email, password, and OTP' })
   @ApiResponse({ status: 200, description: 'Password reset successfully.' })
   @ApiResponse({ status: 400, description: 'Email confirmation failed or bad request.' })
+  @ApiBody({
+    description: 'Payload for resetting the password',
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+        password: { type: 'string', example: 'securePassword123' },
+        otp: { type: 'string', example: '123456' },
+      },
+      required: ['email', 'password', 'otp'],
+    },
+  })
   async resetPassword(@Body() body: { email: string; password: string; otp: string }) {
     const { email, password, otp } = body;
     const res = await this.authService.confirmEmail(email, otp);
@@ -84,8 +96,9 @@ export class AuthController {
     if (res.status === 'success') {
       return this.accountService.update(res.account.id, { password: hash, verification_code: generateOtp() });
     }
-    throw new BadRequestException("Email Confirmation failed!");
+    throw new BadRequestException('Email Confirmation failed!');
   }
+
 
   @Get()
   @UseGuards(LocalAuthGuard)

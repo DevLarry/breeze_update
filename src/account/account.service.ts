@@ -17,6 +17,8 @@ export class AccountService {
     private prismaService: PrismaService,
     private emailService: MailerService,
   ) {}
+
+  
   async create(createAccountDto: CreateAccountDto, res) {
     let user: CreateAccountDto = createAccountDto;
     user.email = createAccountDto.email;

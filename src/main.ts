@@ -2,6 +2,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common'
 import * as session from 'express-session';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { configDotenv } from 'dotenv';
@@ -22,6 +23,13 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
   app.enableCors({ origin: 'http://localhost:3000', credentials: true });
   // app.use(serveStatic('public', {}));
   // somewhere in your initialization file
