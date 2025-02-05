@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -23,7 +22,6 @@ import {
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
-import { Account } from './entities/account.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
 
@@ -33,7 +31,10 @@ export class AccountController {
   constructor(private readonly accountService: AccountService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new account' })
+  @ApiOperation({
+    summary: 'Create a new account',
+    description: 'Creates a new account with the provided details and sends a confirmation email.',
+  })
   @ApiResponse({ status: 201, description: 'Account created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
   async create(@Body() createAccountDto: CreateAccountDto, @Response() res) {
@@ -41,7 +42,10 @@ export class AccountController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Retrieve a list of accounts' })
+  @ApiOperation({
+    summary: 'Retrieve a list of accounts',
+    description: 'Fetches a paginated list of accounts, with optional search filtering.',
+  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -76,6 +80,7 @@ export class AccountController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: "Retrieve the current authenticated user's account",
+    description: 'Fetches the account details of the currently authenticated user.',
   })
   @ApiResponse({
     status: 200,
@@ -87,7 +92,10 @@ export class AccountController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Retrieve an account by its ID' })
+  @ApiOperation({
+    summary: 'Retrieve an account by its ID',
+    description: 'Fetches the account details for the specified account ID.',
+  })
   @ApiResponse({
     status: 200,
     description: 'Account details retrieved successfully.',
@@ -100,7 +108,10 @@ export class AccountController {
   @UseGuards(AuthGuard)
   @Patch(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update an account by its ID' })
+  @ApiOperation({
+    summary: 'Update an account by its ID',
+    description: 'Updates the account details for the specified account ID.',
+  })
   @ApiResponse({ status: 200, description: 'Account updated successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
   @ApiResponse({ status: 404, description: 'Account not found.' })
@@ -111,7 +122,10 @@ export class AccountController {
   @UseGuards(AdminGuard)
   @Delete(':id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete an account by its ID' })
+  @ApiOperation({
+    summary: 'Delete an account by its ID',
+    description: 'Deletes the account for the specified account ID.',
+  })
   @ApiResponse({ status: 200, description: 'Account deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Account not found.' })
   remove(@Param('id') id: string) {
