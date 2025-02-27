@@ -20,7 +20,7 @@ import {
 import { NotificationDto } from './dto/notification.dto'; 
 
 @ApiTags('Notifications') 
-@Controller('notifications') 
+@Controller('api/notifications') 
 @UseGuards(JwtAuthGuard) 
 @ApiResponse({ 
   status: 401, 

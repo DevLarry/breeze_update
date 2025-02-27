@@ -2,11 +2,12 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common'
+import { ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { configDotenv } from 'dotenv';
 import { join } from 'path';
+import { NextFunction, Request, Response } from 'express';
 
 configDotenv();
 
@@ -33,7 +34,14 @@ async function bootstrap() {
   app.enableCors({ origin: 'http://localhost:3000', credentials: true });
   // app.use(serveStatic('public', {}));
   // somewhere in your initialization file
-  app.useStaticAssets(join(__dirname, '..', 'public/public'));
+  app.useStaticAssets(join(__dirname, '..', 'public/'));
+  app.setViewEngine('ejs');
+  app.use((req: Request, res: Response, next: NextFunction)=>{
+    if(req.url.startsWith('/api'))
+      next()
+    else
+      res.render("index")
+  })
   const config = new DocumentBuilder()
     .setTitle('Breeze Update Documentation')
     .setDescription('All your worries end here.')
@@ -42,6 +50,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/doc', app, document);
-  await app.listen(3001);
+  await app.listen(3021);
 }
 bootstrap();

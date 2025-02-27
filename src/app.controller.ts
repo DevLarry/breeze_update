@@ -1,14 +1,16 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Redirect, Res } from '@nestjs/common';
+import { Controller, Get, Next, Redirect, Render, Req, Res } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(@Res() res: Response){
-    res.redirect('/doc')
+  @Get("*")
+  getHello(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction){
+    if(req.url.startsWith("/api"))
+      next()
+    res.render("index")
   }
 }

@@ -15,7 +15,7 @@ import { CreatePublicityDto } from './dto/create-publicity.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @ApiTags('publicity')
-@Controller('publicity')
+@Controller('api/publicity')
 export class PublicityController {
   constructor(private readonly publicityService: PublicityService) {}
 

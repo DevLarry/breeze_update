@@ -5,7 +5,7 @@ import { CreateTopicDto, UpdateTopicDto } from './dto/create-topic.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('topics')
-@Controller('topics')
+@Controller('api/topics')
 export class TopicController {
   constructor(private readonly topicService: TopicService) {}
 

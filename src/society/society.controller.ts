@@ -3,7 +3,7 @@ import { SocietyService } from './society.service';
 import { CreateSocietyDto } from './dto/create-society.dto';
 import { UpdateSocietyDto } from './dto/update-society.dto';
 
-@Controller('society')
+@Controller('api/society')
 export class SocietyController {
   constructor(private readonly societyService: SocietyService) {}
 
