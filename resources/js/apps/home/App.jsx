@@ -11,6 +11,7 @@ import FAQs from './pages/FAQs';
 import PostDetails from './pages/PostDetails';
 import Publicize from './pages/Publicize';
 import CreatePost from './pages/CreatePost';
+import NotFound from './pages/404';
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/publicize" element={<Publicize />} />
         <Route path="/create" element={<CreatePost />} />
         <Route path="/" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
