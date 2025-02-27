@@ -692,6 +692,16 @@ video {
 .max-h-40 {
   max-height: 10rem;
 }
+.max-h-full {
+  max-height: 100%;
+}
+.max-h-\[100vh\] {
+  max-height: 100vh;
+}
+.max-h-fit {
+  max-height: -moz-fit-content;
+  max-height: fit-content;
+}
 .min-h-screen {
   min-height: 100vh;
 }
@@ -860,6 +870,12 @@ video {
 }
 .overflow-hidden {
   overflow: hidden;
+}
+.overflow-scroll {
+  overflow: scroll;
+}
+.overflow-y-scroll {
+  overflow-y: scroll;
 }
 .rounded {
   border-radius: 0.25rem;
@@ -1056,6 +1072,9 @@ video {
 .to-transparent {
   --tw-gradient-to: transparent var(--tw-gradient-to-position);
 }
+.to-blue-500 {
+  --tw-gradient-to: #3b82f6 var(--tw-gradient-to-position);
+}
 .object-cover {
   -o-object-fit: cover;
      object-fit: cover;
@@ -1119,6 +1138,14 @@ video {
 .py-8 {
   padding-top: 2rem;
   padding-bottom: 2rem;
+}
+.py-7 {
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
+}
+.py-10 {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
 }
 .pb-8 {
   padding-bottom: 2rem;
@@ -1514,6 +1541,10 @@ input, select, textarea {
     display: block;
   }
 
+  .md\:max-h-\[100vh\] {
+    max-height: 100vh;
+  }
+
   .md\:w-1\/2 {
     width: 50%;
   }
@@ -1546,6 +1577,10 @@ input, select, textarea {
     --tw-space-x-reverse: 0;
     margin-right: calc(2rem * var(--tw-space-x-reverse));
     margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
+  }
+
+  .md\:overflow-y-scroll {
+    overflow-y: scroll;
   }
 }
 

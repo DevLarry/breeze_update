@@ -31,7 +31,7 @@ const Dashboard = () => {
         <Header />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <Sidebar />
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 md:max-h-[100vh] md:overflow-y-scroll">
             <PostForm />
             <div className="space-y-8">
               {posts.map((post, index) => (

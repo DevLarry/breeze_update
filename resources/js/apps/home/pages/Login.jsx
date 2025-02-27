@@ -11,7 +11,7 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen flex items-center justify-center">
+    <div className="bg-gradient-to-br py-10 from-blue-50 to-blue-500 min-h-screen flex items-center justify-center">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden flex">
           <div className="hidden md:block w-1/2 bg-blue-600 relative">
