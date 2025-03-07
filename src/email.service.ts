@@ -106,10 +106,12 @@ export class MailerService {
     }
   }
 
-  async sendConfirmationEmail(email: string, code: string) {
+  async sendConfirmationEmail(email: string, code: string, verificationLink?: string) {
     if (!process.env.CONFIRM_EMAIL_PATH) {
       throw new Error('CONFIRM_EMAIL_PATH environment variable is not set');
     }
+try {
+  
 
     const link = `${process.env.CONFIRM_EMAIL_PATH}?code=${code}&email=${email}&type=1`;
     const template = `
@@ -121,7 +123,7 @@ export class MailerService {
           <p>Your confirmation code is:</p>
           <h3 style="background-color: #f4f4f4; padding: 10px; text-align: center;">${code}</h3>
           <p>You can also confirm your email by clicking the button below:</p>
-          <a href="${link}" 
+          <a href="${verificationLink}" 
              style="display: inline-block; padding: 10px 20px; background-color: #007bff; 
                     color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">
             Confirm Email
@@ -134,7 +136,12 @@ export class MailerService {
     </html>`;
 
     return await this.sendEmail(email, 'Confirm your Email!', template);
-  }
+  
+} catch (error) {
+  console.error('Email sending failed:', error);
+      return false;
+}
+}
 
   async sendForgotPasswordEmail(email: string, code: string) {
     if (!process.env.CONFIRM_EMAIL_PATH) {

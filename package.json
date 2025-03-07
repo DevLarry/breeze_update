@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "frontend:dev": "mix",
+    "frontend:watch": "mix watch",
+    "frontend:prod": "mix --production",
+    "start:all": "concurrently \"npm run start:dev\" \"npm run frontend:watch\""
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -38,8 +42,8 @@
     "express-session": "^1.18.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.14",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+   "react": "^18.2.0",
+"react-dom": "^18.2.0",
     "react-router-dom": "^7.2.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
@@ -60,6 +64,7 @@
     "autoprefixer": "^10.4.13",
     "browser-sync": "^2.28.1",
     "browser-sync-webpack-plugin": "2.3.0",
+    "concurrently": "^8.2.1",
     "eslint": "8.22.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

@@ -19,6 +19,7 @@ model Account {
   bio               String?
   avatar            String?
   verification_code String?
+  verification_token String?
   is_verified       Boolean     @default(false)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt

@@ -20,6 +20,8 @@ export class Account implements account {
   @ApiProperty()
   verification_code: string;
   @ApiProperty()
+  verification_token: string;
+  @ApiProperty()
   is_verified: boolean;
   @ApiProperty()
   createdAt: Date;
@@ -28,7 +30,7 @@ export class Account implements account {
   @ApiProperty()
   departmentId: number;
   @ApiProperty()
-  gender: string; // Ensure it's optional if your type allows it
+  gender: string; 
   @ApiProperty()
   ethnicity: string;
   @ApiProperty()

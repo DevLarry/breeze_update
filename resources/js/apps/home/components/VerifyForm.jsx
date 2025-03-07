@@ -1,44 +1,79 @@
+// src/components/VerifyForm.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { confirmEmail, resendConfirmationEmail } from '../services/api';
 
 const VerifyForm = ({ onVerify }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timer, setTimer] = useState(300); 
+  const [timer, setTimer] = useState(300);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const email = localStorage.getItem('email');
+
+  if (!email) {
+    navigate('/register');
+    return null;
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (timer === 0) {
-      setIsResendDisabled(false);
-    }
+    if (timer === 0) setIsResendDisabled(false);
   }, [timer]);
 
   const handleInputChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    // Auto-focus next input
+    console.log('OTP updated:', newOtp);
     if (value && index < 5) {
       document.getElementById(`otp-input-${index + 1}`).focus();
     }
   };
 
-  const handleResendCode = () => {
-    setTimer(300); // Reset timer to 5 minutes
-    setIsResendDisabled(true);
-    alert('A new code has been sent to your email.');
+  const handleResendCode = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await resendConfirmationEmail(email);
+      setTimer(300);
+      setIsResendDisabled(true);
+      alert('A new verification code and link have been sent to your email.');
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onVerify(); // Trigger success message
+    setError('');
+    setLoading(true);
+
+    const code = otp.join('');
+    console.log('Submitting:', { email, code });
+    try {
+      const response = await confirmEmail({ email, code });
+      if (response.data.status === 'success') {
+        onVerify(); // Trigger the parent to show SuccessMessage
+        localStorage.removeItem('email'); // Clean up
+        // Remove immediate navigation to let Verify page handle it
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,7 +83,8 @@ const VerifyForm = ({ onVerify }) => {
           <i className="ri-mail-send-line text-4xl text-blue-600"></i>
         </div>
         <h2 className="text-3xl font-bold text-gray-800 mb-2">Check Your Email</h2>
-        <p className="text-gray-600">We've sent a verification code to your email</p>
+        <p className="text-gray-600">We've sent a verification code and a link to {email}.</p>
+        <p className="text-gray-600">Use the code below or click the link in your email to verify.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -67,25 +103,30 @@ const VerifyForm = ({ onVerify }) => {
           ))}
         </div>
 
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300"
+          disabled={loading}
+          className={`w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 ${
+            loading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          Verify Account
+          {loading ? 'Verifying...' : 'Verify with Code'}
         </button>
 
         <div className="text-center space-y-4">
           <p className="text-gray-600">
-            Didn't receive the code?{' '}
+            Didn't receive it?{' '}
             <button
               type="button"
               onClick={handleResendCode}
-              disabled={isResendDisabled}
+              disabled={isResendDisabled || loading}
               className={`text-blue-600 hover:underline ${
-                isResendDisabled ? 'opacity-50 cursor-not-allowed' : ''
+                isResendDisabled || loading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
-              Resend Code
+              Resend Code and Link
             </button>
           </p>
           <p className="text-sm text-gray-500">

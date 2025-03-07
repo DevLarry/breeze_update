@@ -8,11 +8,13 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { configDotenv } from 'dotenv';
 import { join } from 'path';
 import { NextFunction, Request, Response } from 'express';
+import * as express from 'express';
 
 configDotenv();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.use(express.json());
   app.use(
     session({
       secret: process.env.JWT_SECRET,
@@ -32,12 +34,13 @@ async function bootstrap() {
   );
 
   app.enableCors({ origin: 'http://localhost:3000', credentials: true });
+  //app.enableCors({ origin: 'http://localhost:3021', credentials: false });
   // app.use(serveStatic('public', {}));
   // somewhere in your initialization file
   app.useStaticAssets(join(__dirname, '..', 'public/'));
   app.setViewEngine('ejs');
   app.use((req: Request, res: Response, next: NextFunction)=>{
-    if(req.url.startsWith('/api'))
+    if(req.url.startsWith('/api') ||  req.url.startsWith('/doc'))
       next()
     else
       res.render("index")

@@ -18,17 +18,19 @@ import {
   ApiResponse,
   ApiQuery,
   ApiBearerAuth,
+  ApiBody
 } from '@nestjs/swagger';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { AdminGuard } from 'src/auth/guards/admin.guard';
+import { AuthService } from 'src/auth/auth.service';
 
 @ApiTags('accounts') // Tags to categorize the endpoints
 @Controller('api/account')
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(private readonly accountService: AccountService,private readonly authService:AuthService) {}
 
   @Post()
   @ApiOperation({
@@ -37,8 +39,9 @@ export class AccountController {
   })
   @ApiResponse({ status: 201, description: 'Account created successfully.' })
   @ApiResponse({ status: 400, description: 'Bad request.' })
-  async create(@Body() createAccountDto: CreateAccountDto, @Response() res) {
-    this.accountService.create(createAccountDto, res);
+  async create(@Body() createAccountDto: CreateAccountDto) {
+    const account = await this.accountService.create(createAccountDto);
+    return account;
   }
 
   @Get()
@@ -131,4 +134,24 @@ export class AccountController {
   remove(@Param('id') id: string) {
     return this.accountService.remove(+id);
   }
+
+@Post('reset-password')
+@ApiOperation({ summary: 'Reset user password using email, password, and OTP' })
+@ApiResponse({ status: 200, description: 'Password reset successfully.' })
+@ApiResponse({ status: 400, description: 'Invalid code or bad request.' })
+@ApiBody({
+  description: 'Payload for resetting the password',
+  schema: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', example: 'user@example.com' },
+      password: { type: 'string', example: 'securePassword123' },
+      otp: { type: 'string', example: '123456' },
+    },
+    required: ['email', 'password', 'otp'],
+  },
+})
+async resetPassword(@Body() body: { email: string; password: string; otp: string }) {
+  return this.authService.resetPassword(body.email, body.otp, body.password);
+}
 }

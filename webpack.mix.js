@@ -29,6 +29,6 @@ mix.copyDirectory('resources/fonts', publicAssetsFolder + '/fonts');
 mix.copyDirectory('resources/img', publicAssetsFolder + '/img');
 mix.copyDirectory('resources/images', path.join(publicAssetsFolder, "..", '/images'));
 
-mix.browserSync('localhost:3021');
+//mix.browserSync('localhost:3021');
 
 mix.options({ postCss: [require('tailwindcss')] });

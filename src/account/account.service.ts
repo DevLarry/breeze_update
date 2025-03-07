@@ -8,9 +8,12 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from 'src/prisma.service';
 import { MailerService } from 'src/email.service';
 import { generateOtp } from './otp.utils';
+import { v4 as uuidv4 } from 'uuid';
+import {BadRequestException,
+NotFoundException,
+} from '@nestjs/common';
 
 export const saltOrRounds = 10;
-
 @Injectable()
 export class AccountService {
   constructor(
@@ -18,41 +21,76 @@ export class AccountService {
     private emailService: MailerService,
   ) {}
 
-  
-  async create(createAccountDto: CreateAccountDto, res) {
-    let user: CreateAccountDto = createAccountDto;
-    user.email = createAccountDto.email;
-    const code = generateOtp();
-    // user;
-    const hash = await bcrypt.hash(createAccountDto.password, saltOrRounds);
-    user.password = hash;
-
-    await this.prismaService.account
-      .create({ data: { ...user, verification_code: code } })
-      .then(async (account) => {
+    async create(createAccountDto: CreateAccountDto) {
+      if (!createAccountDto.password || typeof createAccountDto.password !== 'string') {
+        throw new BadRequestException('Password is required and must be a string');
+      }
+      
+      if (!createAccountDto.email) {
+        throw new BadRequestException('Email is required');
+      }
+      
+      if (!createAccountDto.name) {
+        throw new BadRequestException('Name is required');
+      }
+    
+      const code = generateOtp();
+      const verificationToken = uuidv4();
+      const hash = await bcrypt.hash(createAccountDto.password, saltOrRounds);
+      
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3021';
+      
+      try {
+        const user = { 
+          ...createAccountDto, 
+          password: hash, 
+          verification_code: code,
+          verification_token: verificationToken,
+        };
+        
+        const account = await this.prismaService.account.create({ data: user });
+        const verificationLink = `${frontendUrl}/api/auth/verify?token=${verificationToken}`;
+      
         const emailResult = await this.emailService.sendConfirmationEmail(
           createAccountDto.email,
           code,
+          verificationLink,
         );
-        if (!emailResult)
-          res.status(400).json({
-            message: 'Email not sent',
-            error: new Error('email not sent'),
-          });
-        res.status(201).json(account);
-      })
-      .catch((err) => {
-        let message;
-        if (err.code == 'P2002') {
-          message = 'Account Already Exists! Enter a valid Email/Username.';
-          res.status(400).json({ message: message, error: err });
-        } else {
-          message = err.message;
-          res.status(500).json({ message: message, error: err });
+        
+        if (!emailResult) {
+          await this.prismaService.account.delete({ where: { id: account.id } });
+          throw new BadRequestException('Failed to send confirmation email');
         }
-      });
-  }
+        
+        const { password, ...result } = account;
+        return result;
+      } catch (err) {
+        if (err.code === 'P2002') {
+          throw new BadRequestException('Account already exists! Use a different email.');
+        }
+        throw new BadRequestException(err.message || 'Failed to create account');
+      }
+    }
 
+  async verifyByToken(token: string) {
+    const account = await this.prismaService.account.findFirst({
+      where: { verification_token: token },
+    });
+
+    if (!account) {
+      throw new Error('Invalid or expired verification token');
+    }
+
+    if (account.is_verified) {
+      return { message: 'Account already verified' };
+    }
+
+    await this.prismaService.account.update({
+      where: { id: account.id },
+      data: { is_verified: true, verification_token: null, verification_code: null },
+    });
+    return { message: 'Account verified successfully' };
+  }
   async testMail() {
     const emailResult = await this.emailService.sendConfirmationEmail(
       'test.email@estor.com',
@@ -70,71 +108,48 @@ export class AccountService {
     if (search) {
       where = {
         OR: [
-          {
-            firstname: {
-              contains: search,
-            },
-          },
-          {
-            lastname: {
-              contains: search,
-            },
-          },
-          {
-            email: {
-              contains: search,
-            },
-          },
+          { firstname: { contains: search } },
+          { lastname: { contains: search } },
+          { email: { contains: search } },
         ],
       };
     }
-    let accounts = await this.prismaService.account.findMany({
+    const accounts = await this.prismaService.account.findMany({
       skip: (page - 1) * counts,
       take: counts,
       where,
     });
     const count = await this.prismaService.account.count({ where });
-    accounts = accounts.map((e) => {
-      delete e.password;
-      
-      return e;
-    });
-    return { accounts, count };
+    return {
+      accounts: accounts.map((e) => {
+        delete e.password;
+        return e;
+      }),
+      count,
+    };
   }
-
-  findByUsername(email: string) {
-    return this.prismaService.account.findFirst({
-      where: {
-        email: email,
-      },
-    });
-  }
-
-  findByEmail(email) {
+  async findByEmail(email: string) {
+    if (!email || typeof email !== 'string') {
+      throw new Error('Invalid email provided');
+    }
     return this.prismaService.account.findUnique({ where: { email } });
   }
 
-  findOne(id: number) {
-    return this.prismaService.account.findUnique({
-      where: { id: id },
-    });
+  async findOne(id: number) {
+    return this.prismaService.account.findUnique({ where: { id } });
   }
 
   async update(id: number, updateAccountDto: UpdateAccountDto) {
-    if (updateAccountDto.password)
-      updateAccountDto.password = await bcrypt.hash(
-        updateAccountDto.password,
-        saltOrRounds,
-      );
+    if (updateAccountDto.password) {
+      updateAccountDto.password = await bcrypt.hash(updateAccountDto.password, saltOrRounds);
+    }
     return this.prismaService.account.update({
-      where: { id: id },
-      data: {
-        ...updateAccountDto,
-      },
+      where: { id },
+      data: updateAccountDto,
     });
   }
 
-  remove(id: number) {
-    return this.prismaService.account.delete({ where: { id: id } });
+  async remove(id: number) {
+    return this.prismaService.account.delete({ where: { id } });
   }
 }
